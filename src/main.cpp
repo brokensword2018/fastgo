@@ -43,7 +43,8 @@ int main(int argc, const char* argv[]) {
     }
     InputOption option;
     option.on_enter = [&]() {
-      ilog << "input is " << g_select_items.key_word();
+      ilog << "select path:" << g_select_items.get_select_content();
+      raise(SIGINT);
     };
     Component input_key_words =
         Input(&g_select_items.key_word(), "input key words", option);

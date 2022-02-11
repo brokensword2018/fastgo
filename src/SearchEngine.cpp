@@ -41,16 +41,55 @@ static int http_post(const string& url, const string& req_body, string& resp) {
     return http_code;
 }
 
-string replace_char(string origin, const char from, const char to) {
-    for (size_t i = 0; i < origin.size(); ++i) {
-        if (origin[i] == from) {
-            origin[i] = to;
-        }
+static int http_delete(const string& url, const string& req, string& resp) {
+    CURL* curl = curl_easy_init();
+
+    curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+    curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, "DELETE");
+    struct curl_slist *headers = NULL;
+    headers = curl_slist_append(headers, "Content-Type:application/json");
+    curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+    curl_easy_setopt(curl, CURLOPT_HEADER, 0); // 不显示接收头信息
+    curl_easy_setopt(curl, CURLOPT_POSTFIELDS, req.c_str());
+    curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, ReceiveData);
+    curl_easy_setopt(curl, CURLOPT_WRITEDATA, (void *)&resp);
+    curl_easy_setopt(curl, CURLOPT_FORBID_REUSE, 1);
+    curl_easy_setopt(curl, CURLOPT_TIMEOUT, 5);
+    curl_easy_setopt(curl, CURLOPT_NOSIGNAL, 1L);
+
+    CURLcode res = curl_easy_perform(curl);
+    if (res != CURLE_OK) {
+        elog << curl_easy_strerror(res);
+        return 777;
     }
-    return origin;
+    long http_code;
+    curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
+    curl_slist_free_all(headers);
+    curl_easy_cleanup(curl);
+    return http_code;
 }
 
 
+bool SearchEngine::deleteAllPath() {
+    string resp;
+    int http_code = http_delete("http://localhost:7700/indexes/paths/documents", "", resp);
+    ilog << "http_code:" << http_code << ",resp:" << resp;
+    return true;
+}
+
+
+bool SearchEngine::setPathSortableAttributes() {
+    Json::Value root(Json::arrayValue);
+    root.append("length");
+    string data = Json::FastWriter().write(root);
+    ilog << data;
+
+    string resp;
+    int http_code = http_post("http://localhost:7700/indexes/paths/settings/sortable-attributes", data, resp);
+    ilog << "http_code:" << http_code << ",resp:" << resp;
+
+    return true;
+}
 
 bool SearchEngine::updatePath(const vector<string>& paths) {
     Json::Value root(Json::arrayValue);
@@ -58,10 +97,12 @@ bool SearchEngine::updatePath(const vector<string>& paths) {
         Json::Value val;
         val["id"] = std::to_string(std::hash<std::string>{}(path));
         val["content"] = path;
+        val["length"] = (Json::UInt64)path.size();
         root.append(val);
     }
 
     string data = Json::FastWriter().write(root);
+    //ilog << data;
 
     string resp;
     int http_code = http_post("localhost:7700/indexes/paths/documents", data, resp);
@@ -75,12 +116,16 @@ bool SearchEngine::updatePath(const vector<string>& paths) {
 vector<string> SearchEngine::searchPath(const string& key_words) {
     Json::Value root;
     root["q"] = key_words;
+
+    Json::Value sort_array(Json::arrayValue);
+    sort_array.append("length:asc");
+    root["sort"] = sort_array;
+
     string data = Json::FastWriter().write(root);
     ilog << data;
 
     string resp;
     int http_code = http_post("localhost:7700/indexes/paths/search", data, resp);
-
     ilog << "http_code:" << http_code << ",resp:" << resp;
 
     root.clear();

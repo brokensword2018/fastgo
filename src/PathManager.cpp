@@ -14,6 +14,7 @@ namespace fastgo {
 
 
 void PathManager::load() {
+    SearchEngine::deleteAllPath();
     ifstream file;
     file.open("./path.txt", ios::in);
     if (!file.is_open()) {
@@ -28,6 +29,7 @@ void PathManager::load() {
         iss >> path >> level;
         load(path.c_str(), level);
     }
+    SearchEngine::setPathSortableAttributes();
 }
 
 

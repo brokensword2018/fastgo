@@ -16,6 +16,7 @@ public:
     string& key_word();
     string get_item(const int index);
     void set_item(const int index, string item);
+    string get_select_content();
 
 private:
     string get_prefix(const int index);

@@ -69,4 +69,12 @@ void SelectItmes::set_item(const int index, string item) {
 }
 
 
+string SelectItmes::get_select_content() {
+    if (!_actived) {
+        return "";
+    }
+    return _items[_selected-1];
+}
+
+
 } // namespace fastgo end
