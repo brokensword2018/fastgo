@@ -8,45 +8,90 @@
 #include "ftxui/component/screen_interactive.hpp"  // for Component, ScreenInteractive
 #include "ftxui/dom/elements.hpp"  // for text, hbox, separator, Element, operator|, vbox, border
 #include "ftxui/util/ref.hpp"  // for Ref
-
-
+#include <curl/curl.h>
 
 #include "logger.h"
+#include "SelectItems.h"
+#include "PathManager.h"
+#include "SearchEngine.h"
 
 
+using namespace ftxui;
+using namespace std;
+using namespace fastgo;
 
+
+SelectItmes g_select_items;
+
+void global_init() {
+  curl_global_init(CURL_GLOBAL_ALL);
+}
 
 int main(int argc, const char* argv[]) {
-  using namespace ftxui;
-  using namespace std;
-  using namespace fastgo;
+  global_init();
 
-  FileWriter file("1.txt");
-
-  string key_words;
-  InputOption option;
-  option.on_enter = [&]() {
-    ilog << 666;
-  };
-  Component input_key_words = Input(&key_words, "key words", option);
+  try {
+    if (argc > 1) {
+      if (strcmp(argv[1], "-l") == 0) {
+        if (argc != 2) {
+          cerr << "Usage: fastgo -l" << endl;
+          exit(1);
+        }
+        PathManager::load();
+        exit(0);
+      }
+    }
+    InputOption option;
+    option.on_enter = [&]() {
+      ilog << "input is " << g_select_items.key_word();
+    };
+    Component input_key_words =
+        Input(&g_select_items.key_word(), "input key words", option);
 
     auto component = Container::Vertical({
-      input_key_words,
-   });
+        input_key_words,
+    });
 
-  auto renderer = Renderer(component, [&] {
-    return vbox({
-               hbox(text(" Search : "), input_key_words->Render()),
-               separator(),
-               text("1. " + key_words),
-               text("2. " + key_words),
-               text("3. " + key_words),
-           }) |
-           border;
-  });
+    auto renderer = Renderer(component, [&] {
+      
+      vector<string> items = SearchEngine::searchPath(g_select_items.key_word());
+      g_select_items.set_status(!items.empty() && !g_select_items.key_word().empty());
+      items.resize(3);
+      g_select_items.set_item(1, items[0]);
+      g_select_items.set_item(2, items[1]);
+      g_select_items.set_item(3, items[2]);
+      return vbox({
+                 hbox(text(" Search : "), input_key_words->Render()),
+                 separator(),
+                 text(g_select_items.get_item(1)),
+                 text(g_select_items.get_item(2)),
+                 text(g_select_items.get_item(3)),
+             }) |
+             border;
+    });
 
-  auto screen = ScreenInteractive::TerminalOutput();
-  screen.Loop(renderer);
+    auto renderer2 = CatchEvent(renderer, [&](Event event) {
+      if (event == Event::ArrowDown) {
+        g_select_items.down();
+      } else if (event == Event::ArrowUp) {
+        g_select_items.up();
+      } else {
+        renderer->OnEvent(event);
+      }
+
+      return true;
+    });
+
+    auto screen = ScreenInteractive::TerminalOutput();
+    screen.Loop(renderer2);
+  } catch (const std::exception& e) {
+    std::cerr << e.what() << '\n';
+  } catch ( ...) {
+    elog << "unknown exception";
+  }
+  
+
+  return 0;
 }
 
 // Copyright 2020 Arthur Sonzogni. All rights reserved.

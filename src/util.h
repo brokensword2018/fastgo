@@ -4,6 +4,7 @@
 
 
 namespace fastgo {
+namespace util {
 
 uint64_t get_time_ms();
 
@@ -14,6 +15,11 @@ void set_thread_name(string name);
 string get_thread_name();
 
 string get_filename_from_path(const string& path);
+
+bool is_dir(const char* path);
+
+int levenshtein_distance(const string& str1, const string& str2);
+
 
 #define StrPrinter _StrPrinter()
 class _StrPrinter : public string {
@@ -29,5 +35,5 @@ private:
     stringstream _ss;
 };
 
-
+} // namespace util end
 } // namespace fastgo end

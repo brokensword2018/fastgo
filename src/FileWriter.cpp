@@ -19,6 +19,7 @@ FileWriter::~FileWriter() {
 
 void FileWriter::write(const std::string& text) {
     _file << text;
+    _file.flush();
 }
 
 } // namespace fastgo end

@@ -5,8 +5,7 @@ include(FetchContent)
 
 set(FETCHCONTENT_UPDATES_DISCONNECTED TRUE)
 FetchContent_Declare(ftxui
-  GIT_REPOSITORY https://github.com/ArthurSonzogni/ftxui
-  GIT_TAG v0.11
+  GIT_REPOSITORY https://github.com/brokensword2018/FTXUI.git
 )
 
 FetchContent_GetProperties(ftxui)
@@ -16,6 +15,9 @@ if(NOT ftxui_POPULATED)
 endif()
 
 # ------------------------------------------------------------------------------
+
+SET(CMAKE_BUILD_TYPE "Debug")
+SET(CMAKE_CXX_FLAGS_DEBUG "$ENV{CXXFLAGS} -O0 -Wall -g2 -ggdb")
 
 project(fastgo
   LANGUAGES CXX
@@ -28,7 +30,9 @@ target_include_directories(fastgo PRIVATE src)
 target_link_libraries(fastgo
   PRIVATE ftxui::screen
   PRIVATE ftxui::dom
-  PRIVATE ftxui::component # Not needed for this example.
+  PRIVATE ftxui::component
+  -lcurl
+  -ljsoncpp
 )
 
 install(TARGETS fastgo RUNTIME DESTINATION "bin")
