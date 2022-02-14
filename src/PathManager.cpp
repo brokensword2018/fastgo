@@ -15,8 +15,10 @@ namespace fastgo {
 
 void PathManager::load() {
     SearchEngine::deleteAllPath();
+    char* exe_path = util::get_exe_path();
+    string file_path = string(exe_path) + "path.txt";
     ifstream file;
-    file.open("./path.txt", ios::in);
+    file.open(file_path, ios::in);
     if (!file.is_open()) {
         throw runtime_error("open path.txt fail");
     }

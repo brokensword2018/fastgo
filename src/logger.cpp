@@ -7,7 +7,7 @@
 
 namespace fastgo {
 
-FileWriter log_file("1.log");
+FileWriter* log_file = nullptr;
 
 
 LogContext::LogContext(const LogLevel level, const std::string& filename, const uint32_t line, const string& func_name) {
@@ -21,7 +21,13 @@ LogContext::LogContext(const LogLevel level, const std::string& filename, const 
 }
 
 LogContext::~LogContext() {
-    log_file.write(_prefix.str() + _log.str() + "\n");
+    log_file->write(_prefix.str() + _log.str() + "\n");
+}
+
+
+void init_log() {
+    string log_path = util::get_exe_path() + string("1.log");
+    log_file = new FileWriter(log_path);
 }
 
 } // namespace fastgo end

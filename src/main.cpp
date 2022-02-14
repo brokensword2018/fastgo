@@ -11,9 +11,11 @@
 #include <curl/curl.h>
 
 #include "logger.h"
+#include "util.h"
 #include "SelectItems.h"
 #include "PathManager.h"
 #include "SearchEngine.h"
+
 
 
 using namespace ftxui;
@@ -22,9 +24,12 @@ using namespace fastgo;
 
 
 SelectItmes g_select_items;
+FileWriter* g_ret_path = nullptr;
 
 void global_init() {
   curl_global_init(CURL_GLOBAL_ALL);
+  init_log();
+  g_ret_path = new FileWriter(util::get_exe_path() + string("ret_path.txt"));
 }
 
 int main(int argc, const char* argv[]) {
@@ -44,6 +49,7 @@ int main(int argc, const char* argv[]) {
     InputOption option;
     option.on_enter = [&]() {
       ilog << "select path:" << g_select_items.get_select_content();
+      g_ret_path->write(g_select_items.get_select_content());
       raise(SIGINT);
     };
     Component input_key_words =

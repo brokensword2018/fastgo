@@ -39,6 +39,8 @@ private:
     ostringstream _log;
 };
 
+void init_log();
+
 
 #define WriteLog(level) LogContext(level, __FILE__, __LINE__, __FUNCTION__)
 #define dlog WriteLog(debug)

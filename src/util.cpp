@@ -54,31 +54,27 @@ bool is_dir(const char* path) {
     return false;
 }
 
-#define MAX_LEN 512
-int dp[MAX_LEN][MAX_LEN];
-int levenshtein_distance(const string& str1, const string& str2) {
-    if (str1.size() >= MAX_LEN || str2.size() >= MAX_LEN) {
-        throw runtime_error("the string is too long for calculate levenshtein distance");
+
+char * get_exe_path()
+{
+    static char buf[PATH_MAX];
+    int i;
+    int rslt = readlink("/proc/self/exe", buf, PATH_MAX);
+    if (rslt < 0 || rslt >= PATH_MAX)
+    {
+        return NULL;
     }
-    int len1 = str1.size();
-    int len2 = str2.size();
-    for (int i = 0; i <= len1; ++i) {
-        dp[i][0] = i;
+    buf[rslt] = '\0';
+    for (i = rslt; i >= 0; i--)
+    {
+        if (buf[i] == '/')
+        {
+            buf[i + 1] = '\0';
+            break;
+        }
     }
-    for (int j = 0; j <= len2; ++j) {
-        dp[0][j] = j;
-    }
-    for (int i = 1; i <= len1; i++) {
-		for (int j = 1; j <= len2; j++) {
-			dp[i][j] = min(dp[i - 1][j] + 1, dp[i][j - 1] + 1);
-			dp[i][j] = min(dp[i][j], dp[i - 1][j - 1] + (str1[i - 1] != str2[j - 1]));
-			//删除，插入，替换
-		}
-	}
-    return dp[len1][len2];
+    return buf;
 }
-
-
 
 
 } // namespace util end

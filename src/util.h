@@ -18,7 +18,8 @@ string get_filename_from_path(const string& path);
 
 bool is_dir(const char* path);
 
-int levenshtein_distance(const string& str1, const string& str2);
+
+char* get_exe_path();
 
 
 #define StrPrinter _StrPrinter()

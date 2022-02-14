@@ -5,6 +5,11 @@
 
 namespace fastgo {
 
+
+
+string SearchEngine::last_key_words;
+vector<string> SearchEngine::last_path_ret;
+
 static size_t ReceiveData(void *contents, size_t size, size_t nmemb, void *stream)
 {
     std::string *str = (std::string *)stream;
@@ -114,6 +119,9 @@ bool SearchEngine::updatePath(const vector<string>& paths) {
 
 
 vector<string> SearchEngine::searchPath(const string& key_words) {
+    if (key_words == last_key_words) {
+        return last_path_ret;
+    }
     Json::Value root;
     root["q"] = key_words;
 
@@ -146,7 +154,8 @@ vector<string> SearchEngine::searchPath(const string& key_words) {
     for (string s : ret) {
         ilog << s;
     }
-
+    last_key_words = key_words;
+    last_path_ret = ret;
     return ret;
 }
 
