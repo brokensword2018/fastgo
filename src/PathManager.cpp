@@ -50,6 +50,7 @@ void PathManager::load(const char* path, const int level) {
         throw runtime_error("get real path fail");
     }
     load_impl(abs_path, 0, level);
+    cout << "load success: " << abs_path  << endl;
     SearchEngine::updatePath(paths);
 }
 

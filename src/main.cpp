@@ -34,7 +34,7 @@ void global_init() {
 
 int main(int argc, const char* argv[]) {
   global_init();
-
+  
   try {
     if (argc > 1) {
       if (strcmp(argv[1], "-l") == 0) {

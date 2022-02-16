@@ -1,4 +1,6 @@
 #include "SearchEngine.h"
+#include "util.h"
+
 #include <curl/curl.h>
 #include <jsoncpp/json/json.h>
 
@@ -74,10 +76,13 @@ static int http_delete(const string& url, const string& req, string& resp) {
     return http_code;
 }
 
+static string get_url_prefix() {
+    return "http://localhost:7700/indexes/" + util::get_cur_username() + "/";
+}
 
 bool SearchEngine::deleteAllPath() {
     string resp;
-    int http_code = http_delete("http://localhost:7700/indexes/paths/documents", "", resp);
+    int http_code = http_delete(get_url_prefix() + "documents", "", resp);
     ilog << "http_code:" << http_code << ",resp:" << resp;
     return true;
 }
@@ -90,7 +95,7 @@ bool SearchEngine::setPathSortableAttributes() {
     ilog << data;
 
     string resp;
-    int http_code = http_post("http://localhost:7700/indexes/paths/settings/sortable-attributes", data, resp);
+    int http_code = http_post(get_url_prefix() + "settings/sortable-attributes", data, resp);
     ilog << "http_code:" << http_code << ",resp:" << resp;
 
     return true;
@@ -110,7 +115,7 @@ bool SearchEngine::updatePath(const vector<string>& paths) {
     //ilog << data;
 
     string resp;
-    int http_code = http_post("localhost:7700/indexes/paths/documents", data, resp);
+    int http_code = http_post(get_url_prefix() + "documents", data, resp);
 
     ilog << "http_code:" << http_code << ",resp:" << resp;
 
@@ -133,7 +138,7 @@ vector<string> SearchEngine::searchPath(const string& key_words) {
     ilog << data;
 
     string resp;
-    int http_code = http_post("localhost:7700/indexes/paths/search", data, resp);
+    int http_code = http_post(get_url_prefix() + "search", data, resp);
     ilog << "http_code:" << http_code << ",resp:" << resp;
 
     root.clear();

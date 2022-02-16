@@ -1,6 +1,7 @@
 #include "util.h"
 #include <sys/stat.h>
 #include <unistd.h>
+#include <pwd.h> 
 
 namespace fastgo {
 namespace util {
@@ -74,6 +75,15 @@ char * get_exe_path()
         }
     }
     return buf;
+}
+
+
+string get_cur_username() {
+    uid_t userid;  
+    struct passwd* pwd;  
+    userid = getuid();  
+    pwd = getpwuid(userid);  
+    return string(pwd->pw_name);
 }
 
 

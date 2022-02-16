@@ -21,6 +21,7 @@ bool is_dir(const char* path);
 
 char* get_exe_path();
 
+string get_cur_username();
 
 #define StrPrinter _StrPrinter()
 class _StrPrinter : public string {
