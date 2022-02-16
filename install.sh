@@ -22,7 +22,7 @@ cd .fastgo
 count=`ps -ef |grep meilisearch |grep -v "grep" |wc -l`
 if [ 0 == $count ]; then
     echo install meilisearch
-    #curl -L https://install.meilisearch.com | sh
+    curl -L https://install.meilisearch.com | sh
 
     mv ./meilisearch /usr/bin/
 
