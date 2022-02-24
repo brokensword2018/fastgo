@@ -1,10 +1,15 @@
 #pragma once
 #include "common.h"
 
+#include <unistd.h>
+#include <sys/syscall.h>
 
 
 namespace fastgo {
 namespace util {
+
+
+#define gettid() syscall(SYS_gettid)
 
 uint64_t get_time_ms();
 
