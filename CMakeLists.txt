@@ -1,5 +1,15 @@
 cmake_minimum_required (VERSION 3.11)
 
+# 设置三方库
+set(BUILD_SHARED_LIBS OFF)
+set(CURL_ENABLE_SSL OFF)
+add_subdirectory(third_party/jsoncpp)
+INCLUDE_DIRECTORIES(third_party/jsoncpp/include)
+add_subdirectory(third_party/curl)
+INCLUDE_DIRECTORIES(third_party/curl/include)
+link_directories(${CMAKE_LIBRARY_OUTPUT_DIRECTORY})
+
+
 # --- Fetch FTXUI --------------------------------------------------------------
 include(FetchContent)
 
@@ -33,8 +43,9 @@ target_link_libraries(fastgo
   PRIVATE ftxui::screen
   PRIVATE ftxui::dom
   PRIVATE ftxui::component
-  -lcurl
-  -ljsoncpp
+  libjsoncpp.a
+  libcurl.a
+  -lz
 )
 
 install(TARGETS fastgo RUNTIME DESTINATION "bin")
